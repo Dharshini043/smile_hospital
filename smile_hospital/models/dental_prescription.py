@@ -327,6 +327,23 @@ class DentalPrescriptionLines(models.Model):
         ('after', 'After Food')
     ], string='Medicine Take',default='after')
     days = fields.Float(string='Days')
+    onhand_qty = fields.Float(
+        string="On-hand Quantity",
+        compute="_compute_onhand_qty",
+        store=False,
+        help="Available stock for the selected medicine"
+    )
+
+    @api.depends('medicament_id')
+    def _compute_onhand_qty(self):
+        for rec in self:
+            rec.onhand_qty = 0.0
+            if rec.medicament_id:
+                product = self.env['product.product'].search(
+                    [('product_tmpl_id', '=', rec.medicament_id.id)], limit=1
+                )
+                if product:
+                    rec.onhand_qty = product.qty_available
 
 
 
