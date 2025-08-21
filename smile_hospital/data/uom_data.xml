@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- UoM Category: Medicine -->
+    <record id="uom_category_medicine" model="uom.category">
+        <field name="name">Medicine</field>
+    </record>
+     <record id="uom_tablet" model="uom.uom">
+        <field name="name">Tablet</field>
+        <field name="category_id" ref="uom_category_medicine"/>
+        <field name="uom_type">reference</field>
+        <field name="factor">1</field> <!-- base unit -->
+        <field name="rounding">0.01</field>
+    </record>
+
+    <!-- Strip = 10 Tablets -->
+    <record id="uom_strip" model="uom.uom">
+        <field name="name">Strip</field>
+        <field name="category_id" ref="uom_category_medicine"/>
+        <field name="uom_type">bigger</field>
+        <field name="factor_inv">10</field> <!-- 1 Strip = 10 Tablets -->
+        <field name="rounding">0.01</field>
+    </record>
+</odoo>

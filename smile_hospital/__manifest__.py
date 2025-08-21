@@ -13,7 +13,7 @@
     "license": "AGPL-3",
     'category': 'Hospital',
     'version': '18.0.1.0.0',
-    'depends': ['base', 'hr', 'account', 'sale', 'product', 'web','stock','mail','contacts'],
+    'depends': ['base', 'hr', 'account', 'sale_management','purchase' ,'product', 'web','stock','mail','contacts'],
     'data': [
         'data/patient_id_sequence.xml',
         'data/dental_specialist_data.xml',
@@ -21,6 +21,8 @@
         'data/dental_treatment_data.xml',
         'data/dental_time_shift_data.xml',
         'data/medicine_frequency_data.xml',
+        'data/medicine_data.xml',
+        'data/uom_data.xml',
         'data/mail_teamplate.xml',
         'wizard/treatment_report_wizard_view.xml',
         'wizard/doctor_report_wizard_view.xml',
@@ -53,7 +55,7 @@
     ],
 
     'installable': True,
-    'auto_install': False,
+    'auto_install': True,
     'application': True,
 
 }

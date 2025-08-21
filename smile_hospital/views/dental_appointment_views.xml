@@ -60,7 +60,7 @@
 
                         <button name="action_open_patient_form" type="object" string="view Patient" icon="fa-user-md"
                                 class="oe_highlight"
-                                invisible="state != 'confirmed'"/>
+                               />
 
                     </header>
                     <sheet>

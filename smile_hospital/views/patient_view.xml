@@ -107,9 +107,9 @@
             <xpath expr="//button[@name='action_view_stock_lots']" position="attributes">
                 <attribute name="invisible">company_type == 'person'</attribute>
             </xpath>
-                        <xpath expr="//button[@name='schedule_meeting']" position="attributes">
-                            <attribute name="invisible">company_type == 'person'</attribute>
-                        </xpath>
+<!--                        <xpath expr="//button[@name='schedule_meeting']" position="attributes">-->
+<!--                            <attribute name="invisible">company_type == 'person'</attribute>-->
+<!--                        </xpath>-->
 <!--            <xpath expr="//button[@name='action_see_documents']" position="attributes">-->
 <!--                <attribute name="invisible">company_type == 'person'</attribute>-->
 <!--            </xpath>-->

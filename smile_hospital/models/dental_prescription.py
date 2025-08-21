@@ -21,16 +21,17 @@ class DentalPrescription(models.Model):
     appointment_id = fields.Many2one('dental.appointment',
                                      string="Appointment",
                                      domain="[('id','in',appointment_ids)]",
-                                     required=True,
+
                                      help="All appointments created")
     patient_id = fields.Many2one(related="appointment_id.patient_id",
                                  string="Patient",
                                  required=True,
+                                 readonly=False,
                                  help="name of the patient")
     # token_no = fields.Integer(related="appointment_id.token_no",
     #                           string="Token Number",
     #                           help="Token number of the patient")
-    treatment_id = fields.Many2one('dental.treatment',
+    treatment_id = fields.Many2many('dental.treatment',
                                    string="Treatment",
                                    help="Name of the treatment done for patient")
     cost = fields.Float(related="treatment_id.cost",
@@ -43,6 +44,7 @@ class DentalPrescription(models.Model):
     prescribed_doctor_id = fields.Many2one(related="appointment_id.dentist_id",
                                            string='Prescribed Doctor',
                                            required=True,
+                                           readonly=False,
                                            help="Doctor who is prescribed")
     prescription_date = fields.Date(default=fields.date.today(),
                                     string='Prescription Date',
