@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_patient_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="wizard">
+                <t t-set="patient" t-value="wizard.patient_id"/>
+
+                <t t-call="web.external_layout">
+                    <div class="page">
+                        <h2 style="text-align:center;">Patient Report</h2>
+
+                        <!-- Patient Info -->
+                        <h4>Personal Information</h4>
+                        <p><strong>Name:</strong> <span t-esc="patient.name"/></p>
+                        <p><strong>Patient Number:</strong> <span t-esc="patient.patient_no"/></p>
+                        <p><strong>DOB:</strong> <span t-esc="patient.dob"/></p>
+                        <p><strong>Age:</strong> <span t-esc="patient.patient_age"/></p>
+                        <p><strong>Occupation:</strong> <span t-esc="patient.function"/></p>
+                        <p><strong>Mobile:</strong> <span t-esc="patient.mobile"/></p>
+                        <p><strong>Address:</strong> <span t-esc="patient.contact_address"/></p>
+
+                        <!-- Appointment Info -->
+                        <h4>Appointment History</h4>
+                        <table class="table table-sm o_main_table">
+                            <thead>
+                                <tr>
+                                    <th>Appointment No</th>
+                                    <th>Date</th>
+                                    <th>Date/Time</th>
+                                    <th>Dentist</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-foreach="request.env['dental.appointment'].search([('patient_id','=',patient.id)])"
+                                   t-as="apt">
+                                    <tr>
+                                        <td><span t-esc="apt.appointment_no"/></td>
+                                        <td><span t-esc="apt.appointment_date"/></td>
+                                        <td><span t-esc="apt.appointment_datetime"/></td>
+                                        <td><span t-esc="apt.dentist_id.name"/></td>
+                                    </tr>
+                                </t>
+                            </tbody>
+                        </table>
+                    </div>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ================= Patient Report ================= -->
+    <record id="action_patient_report" model="ir.actions.report">
+        <field name="name">Patient Report</field>
+        <field name="model">patient.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">smile_hospital.report_patient_document</field>
+        <field name="report_file">smile_hospital.report_patient_document</field>
+        <field name="print_report_name">'Patient Report - %s' % (object.patient_id.name or '')</field>
+        <field name="binding_model_id" ref="model_patient_report_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
