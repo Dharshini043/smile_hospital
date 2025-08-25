@@ -15,7 +15,7 @@ smile_hospital.access_medicine_frequency,access_medicine_frequency,smile_hospita
 smile_hospital.access_dental_procedure,access_dental_procedure,smile_hospital.model_dental_procedure,base.group_user,1,1,1,1
 smile_hospital.access_treatment_report_wizard,access_treatment_report_wizard,smile_hospital.model_treatment_report_wizard,base.group_user,1,1,1
 smile_hospital.access_doctor_report_wizard,access_doctor_report_wizard,smile_hospital.model_doctor_report_wizard,base.group_user,1,1,1,1
-
+smile_hospital.access_patient_report_wizard,access_patient_report_wizard,smile_hospital.model_patient_report_wizard,base.group_user,1,1,1,1
 
 
 

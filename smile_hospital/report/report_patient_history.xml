@@ -184,6 +184,7 @@
                         <!-- Prescriptions -->
                         <div class="report-section">
                             <h4 class="section-title">Prescriptions</h4>
+                            <t t-set="prescriptions" t-value="patient_data.get(doc.id).get('prescriptions')"/>
                             <table class="report-table">
                                 <thead>
                                     <tr>
@@ -203,7 +204,7 @@
                                                 <t t-esc="pres.prescribed_doctor_id.name"/>
                                             </td>
                                             <td>
-                                                <t t-esc="pres.treatment_id.name"/>
+                                                <t t-esc="', '.join(pres.treatment_id.mapped('name'))"/>
                                             </td>
                                             <td>
                                                 <ul style="margin:0; padding-left:15px;">
@@ -230,6 +231,7 @@
                                 </tbody>
                             </table>
                         </div>
+
                         <!-- Invoices -->
                         <div class="report-section">
                             <h4 class="section-title">Invoices</h4>
@@ -238,6 +240,7 @@
                                     <tr><th>Invoice</th><th>Date</th><th>Total</th><th>Paid</th><th>Balance</th></tr>
                                 </thead>
                                 <tbody>
+                                    <t t-set="invoices" t-value="patient_data.get(doc.id).get('invoices')"/>
                                     <t t-foreach="invoices" t-as="inv">
                                         <tr>
                                             <td><t t-esc="inv.name"/></td>

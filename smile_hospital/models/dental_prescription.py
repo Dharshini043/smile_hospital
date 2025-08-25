@@ -31,12 +31,18 @@ class DentalPrescription(models.Model):
     # token_no = fields.Integer(related="appointment_id.token_no",
     #                           string="Token Number",
     #                           help="Token number of the patient")
-    treatment_id = fields.Many2many('dental.treatment',
-                                   string="Treatment",
-                                   help="Name of the treatment done for patient")
-    cost = fields.Float(related="treatment_id.cost",
-                        string="Treatment Cost",
-                        help="Cost of treatment")
+    treatment_id = fields.Many2many(
+        'dental.treatment',
+        string="Treatments",
+        help="Name of the treatments done for patient"
+    )
+
+    treatment_cost = fields.Float(
+        string="Treatment Cost",
+        compute="_compute_treatment_cost",
+        store=True,
+        readonly=True
+    )
     currency_id = fields.Many2one('res.currency', 'Currency',
                                   default=lambda self: self.env.user.company_id.currency_id,
                                   required=True,
@@ -74,7 +80,7 @@ class DentalPrescription(models.Model):
         string="Next Appointment Date",
         help="Date for the next appointment"
     )
-    treatment_cost = fields.Float(string="Treatment Cost", readonly=True)
+    # treatment_cost = fields.Float(string="Treatment Cost", readonly=True)
     amount_paid = fields.Float(string="Amount Paid", readonly=True)
     balance_amount = fields.Float(string="Balance", readonly=True)
     payment_status = fields.Char(string="Payment Status", readonly=True)
@@ -82,6 +88,11 @@ class DentalPrescription(models.Model):
     # grand_total = fields.Float(compute="_compute_grand_total",
     #                            string="Grand Total",
     #                            help="Get the grand total amount")
+
+    @api.depends('treatment_id')
+    def _compute_treatment_cost(self):
+        for rec in self:
+            rec.treatment_cost = sum(rec.treatment_id.mapped('cost'))
 
     @api.model_create_multi
     def create(self, vals):
@@ -169,90 +180,92 @@ class DentalPrescription(models.Model):
         self.appointment_id.state = 'done'
 
     def create_invoice(self):
-        """Create two separate invoices: one for treatment and one for prescribed medicines."""
-        self.ensure_one()
+        """Create invoices for treatments and prescribed medicines safely."""
+        self.ensure_one()  # Ensure we are processing one prescription at a time
 
+        # ---------- TREATMENT INVOICE ----------
         if not self.treatment_id:
             raise UserError(_("No treatment selected."))
 
-        # ---------- TREATMENT INVOICE ----------
+        treatment_lines = []
+        for treatment in self.treatment_id:
+            treatment_lines.append(fields.Command.create({
+                'name': treatment.name,
+                'quantity': 1,
+                'price_unit': treatment.cost,
+            }))
+
         treatment_invoice_vals = {
             'move_type': 'out_invoice',
             'partner_id': self.patient_id.id,
             'state': 'draft',
-            'invoice_line_ids': [
-                fields.Command.create({
-                    'name': self.treatment_id.name,
-                    'quantity': 1,
-                    'price_unit': self.cost,
-                })
-            ],
+            'invoice_line_ids': treatment_lines,
             'is_treatment_invoice': True,
             'doctor_id': self.prescribed_doctor_id.id,
         }
         treatment_invoice = self.env['account.move'].create(treatment_invoice_vals)
 
-        # ---------- PRESCRIPTION INVOICE ----------
-        medicine_invoice_lines = []
-        medicine_moves = []
-        for rec in self.medicine_ids:
-            product = self.env['product.product'].search([
-                ('product_tmpl_id', '=', rec.medicament_id.id)], limit=1)
+        # ---------- MEDICINE INVOICE ----------
+        medicine_lines = []
+        stock_moves = []
+        for line in self.medicine_ids:
+            product = self.env['product.product'].search(
+                [('product_tmpl_id', '=', line.medicament_id.id)], limit=1
+            )
             if product:
-                # Add medicine line
-                medicine_invoice_lines.append(
-                    fields.Command.create({
-                        'product_id': product.id,
-                        'name': rec.display_name,
-                        'quantity': rec.quantity,
-                        'price_unit': rec.price,
-                    })
-                )
+                medicine_lines.append(fields.Command.create({
+                    'product_id': product.id,
+                    'name': line.display_name,
+                    'quantity': line.quantity,
+                    'price_unit': line.price,
+                }))
 
-                # Track movement if stockable
-                if product.type == 'consu':
-                    medicine_moves.append({
-                        'product_id': product,
-                        'quantity': rec.quantity,
+                # Track stock movement for consumables
+                if product.type in ('consu', 'product'):
+                    stock_moves.append({
+                        'product': product,
+                        'quantity': line.quantity,
                     })
 
-        if not medicine_invoice_lines:
+        if not medicine_lines:
             raise UserError(_("No valid medicines to invoice."))
 
         prescription_invoice_vals = {
             'move_type': 'out_invoice',
             'partner_id': self.patient_id.id,
             'state': 'draft',
-            'invoice_line_ids': medicine_invoice_lines,
+            'invoice_line_ids': medicine_lines,
         }
         prescription_invoice = self.env['account.move'].create(prescription_invoice_vals)
 
         # ---------- STOCK MOVEMENT ----------
-        if medicine_moves:
-            warehouse = self.env['stock.warehouse'].search([('company_id', '=', self.env.company.id)], limit=1)
+        if stock_moves:
+            warehouse = self.env['stock.warehouse'].search(
+                [('company_id', '=', self.env.company.id)], limit=1
+            )
             if not warehouse:
-                raise UserError(_('No warehouse found for the company. Please configure a warehouse.'))
+                raise UserError(_("No warehouse found for the company. Please configure a warehouse."))
 
             source_location = warehouse.lot_stock_id
             customer_location = self.env.ref('stock.stock_location_customers')
 
-            for move in medicine_moves:
+            for move in stock_moves:
                 self.env['stock.move'].create({
                     'name': f'Prescription {self.sequence_no}',
-                    'product_id': move['product_id'].id,
+                    'product_id': move['product'].id,
                     'product_uom_qty': move['quantity'],
                     'quantity': move['quantity'],
-                    'product_uom': move['product_id'].uom_id.id,
+                    'product_uom': move['product'].uom_id.id,
                     'location_id': source_location.id,
                     'location_dest_id': customer_location.id,
                     'state': 'done',
                 })
 
-        # Link only treatment invoice (or both if needed)
+        # ---------- LINK INVOICES ----------
         self.invoice_data_id = treatment_invoice.id
         self.state = 'invoiced'
 
-        # ---------- RETURN BOTH INVOICES ----------
+        # ---------- RETURN ACTION ----------
         return {
             'type': 'ir.actions.act_window',
             'name': 'Treatment & Prescription Invoices',

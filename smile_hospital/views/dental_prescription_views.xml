@@ -73,9 +73,9 @@
                             <!--                                <field name="token_no"/>-->
                         </group>
                         <group>
-                            <field name="treatment_id"/>
+                            <field name="treatment_id" widget="many2many_tags"/>
                             <field name="currency_id" invisible="1"/>
-                            <field name="cost" widget="monetary"/>
+                            <field name="treatment_cost" widget="monetary"/>
                             <field name="prescribed_doctor_id"/>
                             <field name="prescription_date"/>
                         </group>

@@ -46,28 +46,37 @@ class TreatmentReportWizard(models.TransientModel):
         ).report_action(prescriptions)
 
     def _calculate_payment_info(self, prescription):
-        treatment_cost = prescription.cost or 0.0
+        total_cost = 0.0
+        total_paid = 0.0
 
-        payments = self.env['account.payment']
-        if prescription.treatment_invoice_id:
-            payments = self.env['account.payment'].search([
-                ('move_id', '=', prescription.treatment_invoice_id.id)
-            ])
+        # Loop through all treatments in the prescription
+        for treatment in prescription.treatment_id:
+            treatment_cost = treatment.cost or 0.0
+            total_cost += treatment_cost
 
-        # 🔄 Fallback: try partner + treatment_name if no payments found
-        if not payments:
-            payments = self.env['account.payment'].search([
-                ('partner_id', '=', prescription.patient_id.id),
-                ('treatment_name', '=', prescription.treatment_id.name)
-            ])
+            payments = self.env['account.payment']
+            if prescription.treatment_invoice_id:
+                payments = self.env['account.payment'].search([
+                    ('move_id', '=', prescription.treatment_invoice_id.id)
+                ])
 
-        amount_paid = sum(payments.mapped('amount'))
+            # Fallback: search payments by partner + treatment name
+            if not payments:
+                payments = self.env['account.payment'].search([
+                    ('partner_id', '=', prescription.patient_id.id),
+                    ('treatment_name', '=', treatment.name)
+                ])
 
-        # Cap at treatment cost
-        if amount_paid >= treatment_cost:
-            amount_paid = treatment_cost
+            amount_paid = sum(payments.mapped('amount'))
 
-        prescription.treatment_cost = treatment_cost
-        prescription.amount_paid = amount_paid
+            # Cap at treatment cost
+            if amount_paid >= treatment_cost:
+                amount_paid = treatment_cost
+
+            total_paid += amount_paid
+
+        # Save totals on prescription (for report)
+        prescription.treatment_cost = total_cost
+        prescription.amount_paid = total_paid
 
         return prescription

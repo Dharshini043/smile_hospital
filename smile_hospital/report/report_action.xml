@@ -7,7 +7,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">smile_hospital.report_treatment_pdf</field>
         <field name="report_file">smile_hospital.report_treatment_pdf</field>
-        <field name="print_report_name">'Treatment Report - %s' % (object.treatment_id.name or '')</field>
+        <field name="print_report_name">'Treatment Report - %s' % ', '.join(object.treatment_id.mapped('name'))</field>
         <field name="binding_model_id" ref="smile_hospital.model_dental_prescription"/>
         <field name="binding_type">report</field>
     </record>

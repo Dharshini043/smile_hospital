@@ -124,7 +124,14 @@
                                 <td><t t-esc="p[1].prescription_date"/></td>
                                 <td><t t-esc="p[1].sequence_no"/></td>
                                 <td><t t-esc="p[1].patient_id.name"/></td>
-                                <td><t t-esc="p[1].treatment_id.name"/></td>
+                                <td>
+                                    <t t-foreach="p[1].treatment_id" t-as="treat">
+                                        <span>
+                                            <t t-esc="treat.name"/>
+                                        </span>
+                                        <br/>
+                                    </t>
+                                </td>
                                 <td><t t-esc="p[1].prescribed_doctor_id.name"/></td>
                                 <td class="currency-cell">
                                     <t t-esc="p[1].treatment_cost"/> ₹

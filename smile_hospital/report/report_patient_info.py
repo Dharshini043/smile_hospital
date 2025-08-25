@@ -6,18 +6,20 @@ class PatientReport(models.AbstractModel):
 
     def _get_report_values(self, docids, data=None):
         docs = self.env['patient.report.wizard'].browse(docids)
-        result = []
+
+        extra_data = {}
         for wizard in docs:
             appointments = self.env['dental.appointment'].search([
                 ('patient_id', '=', wizard.patient_id.id)
             ])
-            result.append({
-                'wizard': wizard,
-                'patient': wizard.patient_id,
+            extra_data[wizard.id] = {
                 'appointments': appointments,
-            })
+                'appointment_count': len(appointments),
+            }
+
         return {
             'doc_ids': docids,
             'doc_model': 'patient.report.wizard',
-            'docs': result,
+            'docs': docs,           # keep recordset for external_layout
+            'extra_data': extra_data,  # store appointments + count
         }

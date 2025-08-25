@@ -43,7 +43,7 @@
 
                             <div style="width: 50%;">
                                 <strong>Treatment:</strong>
-                                <span t-esc="doc.treatment_id.name"/>
+                                <span t-esc="', '.join(doc.treatment_id.mapped('name'))"/>
                             </div>
                             <div style="width: 50%;">
                                 <strong>Teeth:</strong>

@@ -1,15 +1,14 @@
 from odoo import models, api
-from datetime import datetime, timedelta
 
 class ReportPatientHistory(models.AbstractModel):
     _name = 'report.smile_hospital.report_patient_history_template'
     _description = 'Patient History Report'
 
-
     @api.model
     def _get_report_values(self, docids, data=None):
         patients = self.env['res.partner'].browse(docids)
 
+        patient_data = {}
         for patient in patients:
             prescriptions = self.env['dental.prescription'].search([
                 ('patient_id', '=', patient.id)
@@ -23,11 +22,15 @@ class ReportPatientHistory(models.AbstractModel):
                 ('partner_id', '=', patient.id)
             ])
 
+            patient_data[patient.id] = {
+                'prescriptions': prescriptions,
+                'invoices': invoices,
+                'payments': payments,
+            }
+
         return {
             'doc_ids': docids,
             'doc_model': 'res.partner',
             'docs': patients,
-            'prescriptions': prescriptions,
-            'invoices': invoices,
-            'payments': payments,
+            'patient_data': patient_data,
         }
