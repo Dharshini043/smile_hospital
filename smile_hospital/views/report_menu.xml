@@ -6,7 +6,7 @@
     <menuitem id="menu_hospital_reports"
               name="Reports"
               parent="hospital_root_menu"
-              sequence="7"/>
+              sequence="8"/>
 
     <!-- Treatment Report Menu -->
     <menuitem id="menu_treatment_report_wizard"

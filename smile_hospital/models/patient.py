@@ -37,6 +37,11 @@ class DentalPatients(models.Model):
     invoice_ids = fields.One2many('account.move', 'partner_id', string="Invoices")
     payment_ids = fields.One2many('account.payment', 'partner_id', string="Payments")
     image_1920 = fields.Binary("Image", attachment=True)
+    diagnosis_ids = fields.One2many(
+        'dental.diagnosis',  # replace with your actual diagnosis model
+        'patient_id',  # field in diagnosis model pointing to res.partner
+        string="Diagnoses"
+    )
 
     # date = fields.Date(string='Procedure Date', required=True)
 

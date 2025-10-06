@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Diagnosis Form -->
+    <record id="view_dental_diagnosis_form" model="ir.ui.view">
+        <field name="name">dental.diagnosis.form</field>
+        <field name="model">dental.diagnosis</field>
+        <field name="arch" type="xml">
+            <form string="Dental Diagnosis">
+                <sheet>
+                    <group>
+                        <field name="patient_id"/>
+                    </group>
+
+                    <group string="Intra Oral Findings">
+                        <notebook>
+                            <page string="Hard Tissue">
+                                <field name="dental_caries"/>
+                                <field name="filling"/>
+                                <field name="missing"/>
+                                <field name="other_findings"/>
+                            </page>
+                            <page string="Soft Tissue">
+                                <field name="soft_tissue"/>
+                            </page>
+                        </notebook>
+                    </group>
+
+                    <group string="Extra Oral Findings">
+                        <field name="extra_oral_findings"/>
+                    </group>
+
+                    <group string="Treatment Plan">
+                        <field name="treatment_plan"/>
+                        <field name="treatment_plan_pdf" filename="treatment_plan_pdf_name"/>
+                        <field name="treatment_plan_pdf_name" invisible="1"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Diagnosis Tree -->
+    <record id="view_dental_diagnosis_tree" model="ir.ui.view">
+        <field name="name">dental.diagnosis.tree</field>
+        <field name="model">dental.diagnosis</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="patient_id"/>
+                <field name="dental_caries"/>
+                <field name="filling"/>
+                <field name="missing"/>
+                <field name="soft_tissue"/>
+                <field name="extra_oral_findings"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_res_partner_form_inherit_diagnosis" model="ir.ui.view">
+        <field name="name">res.partner.form.inherit.diagnosis</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='medical_questionare']" position="after">
+                <page name="diagnosis_treatment_tab" string="Diagnosis &amp; Treatment">
+                    <field name="diagnosis_ids" context="{'default_patient_id': id}">
+                        <list>
+                            <field name="dental_caries"/>
+                            <field name="filling"/>
+                            <field name="missing"/>
+                            <field name="soft_tissue"/>
+                            <field name="treatment_plan"/>
+                        </list>
+                        <form>
+                            <group string="Intra Oral">
+                                <group string="Hard Tissue">
+                                    <field name="dental_caries"/>
+                                    <field name="filling"/>
+                                    <field name="missing"/>
+                                    <field name="other_findings"/>
+                                </group>
+                                <group string="Soft Tissue">
+                                    <field name="soft_tissue"/>
+                                </group>
+                            </group>
+
+                            <group string="Extra Oral Findings">
+                                <field name="extra_oral_findings"/>
+                            </group>
+
+                            <group string="Treatment Plan">
+                                <field name="treatment_plan"/>
+                            </group>
+                        </form>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+
+    <!-- Action to open diagnosis records -->
+    <record id="action_dental_diagnosis" model="ir.actions.act_window">
+        <field name="name">Dental Diagnosis</field>
+        <field name="res_model">dental.diagnosis</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+</odoo>

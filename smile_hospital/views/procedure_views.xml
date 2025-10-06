@@ -6,7 +6,7 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook" position="inside">
+            <xpath expr="//page[@name='xray_reports']" position="before">
                 <page string="Procedures" name="procedures_tab">
                     <field name="procedure_ids">
                         <list editable="bottom">

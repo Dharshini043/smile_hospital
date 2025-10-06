@@ -42,6 +42,8 @@
         'views/procedure_views.xml',
         'views/dental_specialist_views.xml',
         'views/dental_time_shift_views.xml',
+        'views/lab_views.xml',
+        'views/dental_diagnosis_views.xml',
         'report/dental_prescription_report.xml',
         'report/dental_prescription_templates.xml',
         'report/custom_report_header.xml',
