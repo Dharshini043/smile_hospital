@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_patient_document">
+        <t t-call="web.html_container">
+            <t t-foreach="docs" t-as="wizard">
+                <t t-set="patient" t-value="wizard.patient_id"/>
+
+                <t t-call="web.external_layout">
+                    <style>
+                        .patient-report {
+                            font-family: 'Helvetica Neue', Arial, sans-serif;
+                            color: #333;
+                            line-height: 1.5;
+                        }
+
+                        .report-header {
+                            text-align: center;
+                            margin-bottom: 25px;
+                            padding-bottom: 15px;
+                            border-bottom: 1px solid #e6e6e6;
+                        }
+
+                        .report-title {
+                            font-size: 26px;
+                            font-weight: bold;
+                            margin: 0;
+                            color: #333;
+                        }
+
+                        .section-title {
+                            font-size: 18px;
+                            font-weight: 600;
+                            margin-top: 20px;
+                            margin-bottom: 10px;
+                            color: #444;
+                            text-align: center;  /* 👈 ensures both sections look aligned */
+                        }
+
+                        .info-table {
+                            width: 100%;
+                            margin-bottom: 20px;
+                        }
+
+                        .info-table td {
+                            padding: 6px 10px;
+                            vertical-align: top;
+                            border: none;
+                            background: none;
+                        }
+
+                        .report-table {
+                            width: 100%;
+                            border-collapse: collapse;
+                            font-size: 13px;
+                            margin-top: 10px;
+                        }
+
+                        .report-table th {
+                            background-color: #f9f9f9;
+                            color: #333;
+                            font-weight: 600;
+                            padding: 10px;
+                            text-align: left;
+                            border: 1px solid #e6e6e6;
+                        }
+
+                        .report-table td {
+                            padding: 8px;
+                            border: 1px solid #e6e6e6;
+                        }
+
+                        .report-table tr:nth-child(even) {
+                            background-color: #f9f9f9;
+                        }
+                    </style>
+
+                    <!-- Report Header -->
+                    <div class="report-header">
+                        <h1 class="report-title">Patient Personal Information</h1>
+                    </div>
+
+                    <!-- Patient Info Section -->
+                    <h4 class="section-title">Patient Details</h4>
+
+                    <table style="width:100%; margin-bottom:15px;">
+                        <tr>
+                            <!-- Left Column -->
+                            <td style="width:50%; vertical-align:top; padding-right:20px;">
+                                <p><strong>Name:</strong> <span t-esc="patient.name"/></p>
+                                <p><strong>Patient Number:</strong> <span t-esc="patient.patient_no"/></p>
+                                <p><strong>Mobile:</strong> <span t-esc="patient.mobile"/></p>
+                                <p><strong>Address:</strong> <span t-esc="patient.contact_address"/></p>
+                            </td>
+
+                            <!-- Right Column -->
+                            <td style="width:50%; vertical-align:top; padding-left:20px;">
+                                <p><strong>DOB:</strong> <span t-esc="patient.dob"/></p>
+                                <p><strong>Age:</strong> <span t-esc="patient.patient_age"/></p>
+                                <p><strong>Occupation:</strong> <span t-esc="patient.function"/></p>
+                            </td>
+                        </tr>
+                    </table>
+
+                    <!-- Appointment Info -->
+                    <h4 class="section-title">
+                        Appointment History (Total:
+                        <t t-esc="extra_data[wizard.id]['appointment_count']"/>)
+                    </h4>
+
+                    <table class="report-table">
+                        <thead>
+                            <tr>
+                                <th>Appointment No</th>
+                                <th>Date/Time</th>
+                                <th>Dentist</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="extra_data[wizard.id]['appointments']" t-as="apt">
+                                <tr>
+                                    <td><t t-esc="apt.appointment_no"/></td>
+                                    <td><t t-esc="apt.appointment_datetime"/></td>
+                                    <td><t t-esc="apt.dentist_id.name"/></td>
+                                </tr>
+                            </t>
+                            <t t-if="not extra_data[wizard.id]['appointments']">
+                                <tr>
+                                    <td colspan="3">No appointments found.</td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+            </t>
+        </t>
+    </template>
+
+    <!-- ================= Patient Report ================= -->
+    <record id="action_patient_report" model="ir.actions.report">
+        <field name="name">Patient Report</field>
+        <field name="model">patient.report.wizard</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">smile_hospital.report_patient_document</field>
+        <field name="report_file">smile_hospital.report_patient_document</field>
+        <field name="print_report_name">'Patient Report - %s' % (object.patient_id.name or '')</field>
+        <field name="binding_model_id" ref="model_patient_report_wizard"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>

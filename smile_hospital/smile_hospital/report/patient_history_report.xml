@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="report_pdf_patient_history" model="ir.actions.report">
+        <field name="name">Patient History</field>
+        <field name="model">res.partner</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">smile_hospital.report_patient_history_template</field>
+        <field name="report_file">smile_hospital.report_patient_history_template</field>
+        <field name="print_report_name">'Patient History - %s' % (object.name)</field>
+        <field name="binding_model_id" ref="base.model_res_partner"/>
+        <field name="binding_type">report</field>
+    </record>
+</odoo>
